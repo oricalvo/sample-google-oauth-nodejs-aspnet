@@ -1,0 +1,32 @@
+<h1>OAuth</h1>
+
+<div>
+    <a href="/auth/google" target="_blank">Login with Google</a>
+    <a href="/auth/logout" target="_self">Logout</a>
+</div>
+<br>
+
+<div>
+    <button ng-click="$ctrl.getDetails()">Get User Details</button>
+    <button ng-click="$ctrl.sendGet()">Send GET request to .NET</button>
+    <button ng-click="$ctrl.sendPost()">Send POST request to .NET</button>
+</div>
+<br>
+
+<div>
+    <strong>Token:</strong>
+    <span>{{$ctrl.user.token}}</span>
+</div>
+<br>
+
+<div>
+    <strong>Name:</strong>
+    <span>{{$ctrl.user.name}}</span>
+</div>
+<br>
+
+<div>
+    <strong>E-Mail</strong>
+    <span>{{$ctrl.user.email}}</span>
+</div>
+<br>
