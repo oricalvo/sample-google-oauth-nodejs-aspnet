@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node main.js"
+  },
   "dependencies": {
     "angular": "^1.6.9",
     "express": "^4.16.2",

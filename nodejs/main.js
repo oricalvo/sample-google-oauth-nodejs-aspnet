@@ -22,11 +22,6 @@ app.use(session({
     }
 }));
 
-app.use(function(req, res, next) {
-    console.log("session", req.session);
-    next();
-});
-
 //
 //  Register passport middlewares. Currently we are using
 //  1) JWT Bearer authentication
