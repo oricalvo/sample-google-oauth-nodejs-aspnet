@@ -9,7 +9,7 @@ class AppComponent {
         this.appService = appService;
         this.$http = $http;
 
-        if($location.search().doneOAuth && window.opener && window.opener.appService) {
+        if ($location.search().doneOAuth && window.opener && window.opener.appService) {
             window.opener.appService.completeAuthentication();
             window.close();
         }
@@ -31,7 +31,7 @@ class AppComponent {
     sendGet() {
         const headers = {};
 
-        if(this.appService.user) {
+        if (this.appService.user) {
             headers['Authorization'] = "Bearer " + this.appService.user.token;
         }
 
@@ -45,7 +45,7 @@ class AppComponent {
     sendPost() {
         const headers = {};
 
-        if(this.appService.user) {
+        if (this.appService.user) {
             headers['Authorization'] = "Bearer " + this.appService.user.token;
         }
 
@@ -54,6 +54,12 @@ class AppComponent {
         }).then(res => {
             console.log(res.data);
         });
+    }
+
+    graphAPI() {
+        this.$http.get(`http://graph.facebook.com/me?fields=email&access_token=${this.appService.user.externalAccessToken}`).then(res => {
+            console.log("email", res.data.email);
+        })
     }
 }
 

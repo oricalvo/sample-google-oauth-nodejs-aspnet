@@ -2,6 +2,7 @@ const passport = require('passport');
 const express = require('express');
 const session = require('express-session');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const jwt = require('jsonwebtoken');
 const request = require('request');
@@ -40,7 +41,8 @@ app.use(session({
     passport.serializeUser((user, done) => {
         var token = jwt.sign({
             name: user.profile.displayName,
-            email: user.profile.emails[0].value,
+            externalAccessToken: user.externalAccessToken,
+            //email: user.profile.emails[0].value,
         }, 'MYSECRET');
 
         done(null, token);
@@ -51,17 +53,6 @@ app.use(session({
         done(null, user);
     });
 
-    //
-    //  Bearer strategy knows how to deserialize the "Authorization" header into object
-    //  Currently we are not doing anything
-    //
-    // passport.use(new BearerStrategy(function(token, cb) {
-    //     var user = jwt.verify(token, 'MYSECRET');
-    //     console.log("user", user);
-    //
-    //     return cb(null, user);
-    // }));
-
     passport.use(new GoogleStrategy({
             clientID: "765152189369-83cgm1ma79h2g72qkjb02e8f1nadibau.apps.googleusercontent.com",
             clientSecret: "tHf4bOGOcVU18meDAydueZzs",
@@ -71,6 +62,19 @@ app.use(session({
             cb(null, {
                 profile,
                 accessToken,
+            });
+        }
+    ));
+
+    passport.use(new FacebookStrategy({
+            clientID: "425387451215422",
+            clientSecret: "9382483684839f61bd7a5c93d1375a45",
+            callbackURL: "http://localhost:3000/auth/facebook/callback",
+        },
+        function (accessToken, refreshToken, profile, cb) {
+            cb(null, {
+                profile,
+                externalAccessToken: accessToken,
             });
         }
     ));
@@ -86,6 +90,7 @@ app.get('/auth/details', function (req, res) {
         name: req.user.name,
         email: req.user.email,
         token: req.session.passport.user,
+        externalAccessToken: req.user.externalAccessToken,
     });
 });
 
@@ -107,6 +112,13 @@ app.get('/auth/google',
     },
     passport.authenticate('google', {scope: ['profile', 'email']}));
 
+app.get('/auth/facebook',
+    function(req, res, next) {
+        console.log(req.user);
+        next();
+    },
+    passport.authenticate('facebook', {scope: ['email']}));
+
 //
 //  Invoked by Google when authentication completes
 //
@@ -117,6 +129,17 @@ app.get('/auth/google/callback', passport.authenticate('google', {failureRedirec
     }, 'MYSECRET');
 
     console.log(token);
+
+    res.redirect(`/?doneOAuth`);
+});
+
+app.get('/auth/facebook/callback', passport.authenticate('facebook', {failureRedirect: '/login'}), function (req, res) {
+    var token = jwt.sign({
+        name: req.user.profile.displayName,
+        //email: req.user.profile.emails[0].value,
+    }, 'MYSECRET');
+
+    console.log(req.user);
 
     res.redirect(`/?doneOAuth`);
 });
